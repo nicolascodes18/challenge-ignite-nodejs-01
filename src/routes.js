@@ -18,7 +18,6 @@ export const routes = [
     path: routePathBuild('/tasks'),
     handler: async (req, res) => {
       const { search } = req.query;
-      console.log(search);
 
       const tasks = database.select(
         'tasks',
@@ -39,6 +38,9 @@ export const routes = [
     handler: async (req, res) => {
       try {
         const { title, description } = req.body;
+
+        if (title === '' || description === '')
+          return res.writeHead(400).end('Os campos não podem estar vazios!');
 
         const tasks = {
           id: randomUUID(),
@@ -64,11 +66,16 @@ export const routes = [
       const { id } = req.params;
       const { title, description } = req.body;
 
-      database.update('tasks', id, {
+      if (title === '' || description === '')
+        return res.writeHead(400).end('Os campos não podem estar vazios!');
+
+      const result = database.update('tasks', id, {
         title,
         description,
         update_at: Date.now(),
       });
+
+      if (result === 0) return res.writeHead(404).end('Tarefa não encontrada!');
 
       return res.writeHead(204).end('Tarefa atualizada com sucesso!');
     },
@@ -79,7 +86,9 @@ export const routes = [
     handler: async (req, res) => {
       const { id } = req.params;
 
-      database.update('tasks', id);
+      const result = database.update('tasks', id);
+
+      if (result === 0) return res.writeHead(404).end('Tarefa não encontrada!');
 
       return res.writeHead(200).end('Tarefa concluída com sucesso!');
     },
@@ -90,7 +99,9 @@ export const routes = [
     handler: async (req, res) => {
       const { id } = req.params;
 
-      database.delete('tasks', id);
+      const result = database.delete('tasks', id);
+
+      if (result === 0) return res.writeHead(404).end('Tarefa não encontrada!');
 
       return res.writeHead(200).end('Tarefa deletada com sucesso!');
     },

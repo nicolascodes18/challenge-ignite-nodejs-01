@@ -23,9 +23,9 @@ export class Database {
     let data = this.#db[table] ?? [];
 
     if (search) {
-      data = data.filter(item => {
+      data = data.filter(row => {
         return Object.entries(search).some(([key, value]) => {
-          return item[key].toLowerCase().includes(value.toLowerCase());
+          return row[key].toLowerCase().includes(value.toLowerCase());
         });
       });
     }
@@ -46,6 +46,10 @@ export class Database {
   update(table, id, data) {
     const rowIndex = this.#db[table].findIndex(item => item.id === id);
 
+    if (rowIndex === -1) {
+      return 0;
+    }
+
     if (rowIndex > -1 && data === undefined) {
       if (this.#db[table][rowIndex].completed_at === null) {
         this.#db[table][rowIndex].completed_at = Date.now();
@@ -64,6 +68,10 @@ export class Database {
 
   delete(table, id) {
     const rowIndex = this.#db[table].findIndex(row => row.id === id);
+
+    if (rowIndex === -1) {
+      return 0;
+    }
 
     if (rowIndex > -1) {
       this.#db[table].splice(rowIndex, 1);
